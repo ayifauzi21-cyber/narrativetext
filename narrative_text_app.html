@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Belajar Narrative Text Interaktif - SMPN 1 Manonjaya</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f7f9fc;
+      }
+      .drag-item {
+        cursor: grab;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .drag-item:active {
+        cursor: grabbing;
+        opacity: 0.8;
+        transform: scale(1.02);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      }
+      .drop-zone {
+        min-height: 150px;
+        border: 3px dashed #cbd5e1; /* slate-300 */
+        transition: all 0.2s ease;
+      }
+      .drop-zone.drag-over {
+        border-color: #3b82f6; /* blue-500 */
+        background-color: #eff6ff; /* blue-50 */
+      }
+      .correct {
+        border: 3px solid #10b981; /* emerald-500 */
+        background-color: #ecfdf5; /* emerald-50 */
+      }
+      .incorrect {
+        border: 3px solid #ef4444; /* red-500 */
+        background-color: #fef2f2; /* red-50 */
+      }
+      .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+      }
+      .quiz-option {
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+      .quiz-option:hover {
+        background-color: #e5e7eb; /* hover gray */
+      }
+      .quiz-option.selected {
+        border-color: #3b82f6; /* blue-500 */
+        background-color: #dbeafe; /* blue-100 */
+      }
+      .quiz-option.correct-answer {
+        background-color: #a7f3d0; /* green-200 */
+        border-color: #10b981; /* emerald-500 */
+        font-weight: 700;
+      }
+      .quiz-option.incorrect-answer {
+        background-color: #fecaca; /* red-200 */
+        border-color: #ef4444; /* red-500 */
+      }
+    </style>
+  </head>
+  <body class="p-4 sm:p-8">
+    <header class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-800">📝 Narrative Text Analyser</h1>
+      <p class="text-lg text-gray-600">Aplikasi Belajar Interaktif untuk Kelas 8 SMPN 1 Manonjaya</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto">
+      <!-- Tab Navigation -->
+      <div class="flex border-b mb-6 overflow-x-auto whitespace-nowrap">
+        <button id="tab-materi" onclick="showTab('materi')" class="tab-button py-2 px-4 text-sm sm:text-base font-semibold border-b-2 border-blue-600 text-blue-600 transition duration-300">Ringkasan Materi</button>
+        <button id="tab-analisis" onclick="showTab('analisis')" class="tab-button py-2 px-4 text-sm sm:text-base font-semibold border-b-2 border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300 transition duration-300">
+          Latihan Analisis (Drag & Drop)
+        </button>
+        <button id="tab-kuis" onclick="showTab('kuis')" class="tab-button py-2 px-4 text-sm sm:text-base font-semibold border-b-2 border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300 transition duration-300">
+          Kuis Pilihan Ganda
+        </button>
+      </div>
+
+      <!-- Tab Content: Ringkasan Materi -->
+      <div id="content-materi" class="tab-content bg-white p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Struktur & Ciri Kebahasaan</h2>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Struktur -->
+          <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <h3 class="text-xl font-semibold text-yellow-700 mb-3 flex items-center">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Struktur (Alur Cerita)
+            </h3>
+            <ul class="space-y-2 text-gray-700">
+              <li>**1. Orientation:** Perkenalan tokoh, tempat, dan waktu.</li>
+              <li>**2. Complication:** Munculnya masalah atau konflik.</li>
+              <li>**3. Resolution:** Penyelesaian masalah (akhir cerita).</li>
+              <li>**4. Moral Value:** Pesan/nilai yang dapat diambil.</li>
+            </ul>
+          </div>
+
+          <!-- Ciri Bahasa -->
+          <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+            <h3 class="text-xl font-semibold text-green-700 mb-3 flex items-center">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Ciri Kebahasaan (Language Features)
+            </h3>
+            <ul class="space-y-2 text-gray-700">
+              <li>Menggunakan **Past Tense** (*went, saw*).</li>
+              <li>Menggunakan **Action Verbs** (*ran, helped*).</li>
+              <li>Menggunakan **Time Connectives** (*Once upon a time, then*).</li>
+              <li>Menggunakan Pihak Ketiga (*he, she, they*).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p class="text-blue-700 font-medium">Tujuan Utama: **Menghibur** pembaca dan **Menyampaikan Pesan Moral**.</p>
+        </div>
+      </div>
+
+      <!-- Tab Content: Latihan Analisis (Drag & Drop) -->
+      <div id="content-analisis" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Latihan: Analisis Cerita "The Lion and the Mouse"</h2>
+        <p class="mb-4 text-gray-600">Seret dan letakkan (Drag and Drop) kalimat di bawah ini ke dalam kotak Struktur Cerita yang sesuai!</p>
+
+        <!-- Bagian Kalimat untuk Drag -->
+        <div id="drag-container" class="mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <!-- Kalimat 1 (Resolution - ID: 3) -->
+          <div id="item-3" draggable="true" class="drag-item p-3 bg-red-100 rounded-lg border border-red-300 text-sm text-red-800">
+            A few days later, the lion was trapped in a hunter's net. The mouse came and bit the net until the lion was free.
+          </div>
+          <!-- Kalimat 2 (Orientation - ID: 1) -->
+          <div id="item-1" draggable="true" class="drag-item p-3 bg-purple-100 rounded-lg border border-purple-300 text-sm text-purple-800">Once upon a time, a lion was sleeping in the jungle. A little mouse ran up and down his body.</div>
+          <!-- Kalimat 3 (Complication - ID: 2) -->
+          <div id="item-2" draggable="true" class="drag-item p-3 bg-indigo-100 rounded-lg border border-indigo-300 text-sm text-indigo-800">
+            The lion woke up and caught the mouse. The mouse begged, "Please, let me go. One day I will help you." The lion laughed but let him go.
+          </div>
+        </div>
+
+        <!-- Zona Drop untuk Struktur -->
+        <div class="space-y-6">
+          <!-- Orientation Drop Zone -->
+          <div class="p-4 bg-gray-50 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-blue-700 mb-2">1. Orientation (ID 1)</h3>
+            <div id="drop-1" data-correct-id="1" class="drop-zone p-3 rounded-md flex flex-col items-center justify-center text-gray-500">
+              <p>Tarik kalimat ke sini</p>
+            </div>
+          </div>
+
+          <!-- Complication Drop Zone -->
+          <div class="p-4 bg-gray-50 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-blue-700 mb-2">2. Complication (ID 2)</h3>
+            <div id="drop-2" data-correct-id="2" class="drop-zone p-3 rounded-md flex flex-col items-center justify-center text-gray-500">
+              <p>Tarik kalimat ke sini</p>
+            </div>
+          </div>
+
+          <!-- Resolution Drop Zone -->
+          <div class="p-4 bg-gray-50 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-blue-700 mb-2">3. Resolution (ID 3)</h3>
+            <div id="drop-3" data-correct-id="3" class="drop-zone p-3 rounded-md flex flex-col items-center justify-center text-gray-500">
+              <p>Tarik kalimat ke sini</p>
+            </div>
+          </div>
+
+          <!-- Moral Value Display -->
+          <div class="p-4 bg-green-50 rounded-lg border border-green-400">
+            <h3 class="text-xl font-bold text-green-700 mb-2">4. Moral Value / Pesan Moral</h3>
+            <p class="text-green-800 font-semibold">Don't underestimate anyone. Even the smallest creature can help you.</p>
+          </div>
+        </div>
+
+        <!-- Tombol Cek dan Reset D&D -->
+        <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <button id="check-button" onclick="checkAnswers()" class="flex-1 py-3 px-6 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg">Cek Jawaban Analisis</button>
+          <button onclick="resetGame('dnd')" class="flex-1 py-3 px-6 bg-gray-300 text-gray-800 font-bold rounded-xl hover:bg-gray-400 transition shadow-lg">Ulangi Latihan Analisis</button>
+        </div>
+
+        <!-- Kotak Pesan Hasil D&D -->
+        <div id="message-box-dnd" class="mt-6 p-4 rounded-xl hidden" role="alert">
+          <!-- Pesan akan ditampilkan di sini -->
+        </div>
+      </div>
+
+      <!-- Tab Content: Kuis Pilihan Ganda -->
+      <div id="content-kuis" class="tab-content bg-white p-6 rounded-xl shadow-lg hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Kuis: Pilihan Ganda (5 Soal)</h2>
+
+        <div id="quiz-container" class="space-y-8">
+          <!-- Soal akan di-render di sini oleh JavaScript -->
+        </div>
+
+        <!-- Tombol Cek dan Reset Kuis -->
+        <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <button id="check-quiz-button" onclick="checkQuiz()" class="flex-1 py-3 px-6 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg">Periksa Jawaban Kuis</button>
+          <button onclick="resetGame('quiz')" class="flex-1 py-3 px-6 bg-gray-300 text-gray-800 font-bold rounded-xl hover:bg-gray-400 transition shadow-lg">Ulangi Kuis</button>
+        </div>
+
+        <!-- Kotak Pesan Hasil Kuis -->
+        <div id="message-box-quiz" class="mt-6 p-4 rounded-xl hidden" role="alert">
+          <!-- Pesan hasil kuis akan ditampilkan di sini -->
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // --- Data Latihan Drag & Drop (DND) ---
+      const correctMapping = {
+        "drop-1": "item-1", // Orientation
+        "drop-2": "item-2", // Complication
+        "drop-3": "item-3", // Resolution
+      };
+      let draggedItem = null;
+
+      // --- Data Kuis Pilihan Ganda (QUIZ) ---
+      const quizQuestions = [
+        {
+          question: "1. Apa tujuan utama (Social Function) dari Narrative Text?",
+          options: ["Memberikan petunjuk resep", "Mendeskripsikan tempat", "Menceritakan dan menghibur pembaca", "Melaporkan peristiwa aktual"],
+          answer: 2, // Index 2: Menceritakan dan menghibur pembaca
+        },
+        {
+          question: "2. Bagian struktur cerita yang memperkenalkan tokoh, latar waktu, dan latar tempat adalah...",
+          options: ["Resolution", "Complication", "Orientation", "Moral Value"],
+          answer: 2, // Index 2: Orientation
+        },
+        {
+          question: "3. Jika dalam cerita muncul masalah atau konflik, bagian ini disebut...",
+          options: ["Moral Value", "Complication", "Resolution", "Orientation"],
+          answer: 1, // Index 1: Complication
+        },
+        {
+          question: "4. Ciri kebahasaan utama Narrative Text adalah menggunakan tenses apa?",
+          options: ["Simple Present Tense", "Simple Future Tense", "Simple Past Tense", "Present Continuous Tense"],
+          answer: 2, // Index 2: Simple Past Tense
+        },
+        {
+          question: "5. Manakah dari kata kerja berikut yang menggunakan bentuk Past Tense (V2) yang benar?",
+          options: ["sleep", "go", "ran", "come"],
+          answer: 2, // Index 2: ran (V2 dari run)
+        },
+      ];
+
+      let userAnswers = Array(quizQuestions.length).fill(null);
+
+      document.addEventListener("DOMContentLoaded", (event) => {
+        // Setup Drag & Drop
+        setupDragAndDrop();
+
+        // Render Kuis
+        renderQuiz();
+
+        // Setup awal (pastikan tab materi yang terbuka)
+        showTab("materi");
+      });
+
+      // --- Fungsi Utama Kuis ---
+
+      function renderQuiz() {
+        const quizContainer = document.getElementById("quiz-container");
+        quizContainer.innerHTML = ""; // Bersihkan kontainer
+
+        quizQuestions.forEach((q, index) => {
+          const questionElement = document.createElement("div");
+          questionElement.className = "p-4 border border-gray-200 rounded-lg bg-white shadow-sm";
+          questionElement.innerHTML = `<p class="font-semibold text-gray-800 mb-3">${q.question}</p>`;
+
+          const optionsContainer = document.createElement("div");
+          optionsContainer.className = "space-y-2";
+
+          q.options.forEach((option, optionIndex) => {
+            const optionButton = document.createElement("div");
+            optionButton.className = "quiz-option p-3 border border-gray-300 rounded-lg text-gray-700";
+            optionButton.textContent = `${String.fromCharCode(65 + optionIndex)}. ${option}`;
+            optionButton.setAttribute("data-index", optionIndex);
+            optionButton.setAttribute("data-question-index", index);
+
+            // Cek apakah sudah dijawab (saat reset/render ulang)
+            if (userAnswers[index] === optionIndex) {
+              optionButton.classList.add("selected");
+            }
+
+            optionButton.addEventListener("click", (e) => {
+              selectQuizOption(index, optionIndex);
+            });
+
+            optionsContainer.appendChild(optionButton);
+          });
+
+          questionElement.appendChild(optionsContainer);
+          quizContainer.appendChild(questionElement);
+        });
+      }
+
+      function selectQuizOption(qIndex, oIndex) {
+        userAnswers[qIndex] = oIndex;
+
+        // Reset visual untuk pertanyaan yang sama
+        const questionDiv = document.querySelectorAll("#quiz-container > div")[qIndex];
+        questionDiv.querySelectorAll(".quiz-option").forEach((option) => {
+          option.classList.remove("selected", "correct-answer", "incorrect-answer");
+        });
+
+        // Tandai jawaban yang dipilih
+        const selectedButton = questionDiv.querySelector(`[data-question-index="${qIndex}"][data-index="${oIndex}"]`);
+        if (selectedButton) {
+          selectedButton.classList.add("selected");
+        }
+
+        // Sembunyikan pesan hasil kuis setelah memilih jawaban baru
+        document.getElementById("message-box-quiz").classList.add("hidden");
+      }
+
+      function checkQuiz() {
+        let score = 0;
+        let unanswered = 0;
+
+        document.getElementById("message-box-quiz").classList.add("hidden");
+
+        quizQuestions.forEach((q, qIndex) => {
+          const selectedOptionIndex = userAnswers[qIndex];
+          const correctOptionIndex = q.answer;
+          const questionDiv = document.querySelectorAll("#quiz-container > div")[qIndex];
+
+          if (selectedOptionIndex !== null) {
+            questionDiv.querySelectorAll(".quiz-option").forEach((option, oIndex) => {
+              option.classList.remove("selected", "correct-answer", "incorrect-answer");
+
+              // Tandai jawaban yang benar
+              if (oIndex === correctOptionIndex) {
+                option.classList.add("correct-answer");
+              }
+
+              // Tandai jawaban siswa (jika salah, tandai sebagai salah)
+              if (oIndex === selectedOptionIndex && selectedOptionIndex !== correctOptionIndex) {
+                option.classList.add("incorrect-answer");
+              }
+
+              // Tambahkan kembali kelas 'selected' pada jawaban yang benar (jika siswa memilihnya)
+              if (oIndex === selectedOptionIndex && selectedOptionIndex === correctOptionIndex) {
+                option.classList.add("correct-answer");
+              }
+            });
+
+            if (selectedOptionIndex === correctOptionIndex) {
+              score++;
+            }
+          } else {
+            unanswered++;
+          }
+        });
+
+        if (unanswered > 0) {
+          showMessage("info", `Ada ${unanswered} soal yang belum kamu jawab. Lengkapi semua soal untuk mendapatkan nilai!`, 5000, "quiz");
+        } else {
+          const percentage = (score / quizQuestions.length) * 100;
+          let message;
+          let type;
+
+          if (percentage === 100) {
+            message = `🎉 Luar Biasa! Kamu mendapat nilai 100%! Kamu menguasai semua materi.`;
+            type = "success";
+          } else if (percentage >= 60) {
+            message = `👍 Hasil yang bagus! Kamu menjawab ${score} dari ${quizQuestions.length} soal dengan benar. Coba tinjau lagi materi untuk pertanyaan yang salah.`;
+            type = "warning";
+          } else {
+            message = `Belum berhasil. Kamu menjawab ${score} dari ${quizQuestions.length} soal dengan benar. Jangan menyerah, pelajari lagi materi di tab Ringkasan Materi!`;
+            type = "error";
+          }
+          showMessage(type, message, 0, "quiz");
+        }
+      }
+
+      // --- Fungsi Umum & DND ---
+
+      function setupDragAndDrop() {
+        const dragItems = document.querySelectorAll(".drag-item");
+        const dropZones = document.querySelectorAll(".drop-zone");
+
+        // 1. Drag Handlers
+        dragItems.forEach((item) => {
+          item.addEventListener("dragstart", (e) => {
+            draggedItem = item;
+            e.dataTransfer.setData("text/plain", item.id);
+            setTimeout(() => item.classList.add("opacity-50"), 0);
+          });
+          item.addEventListener("dragend", () => {
+            item.classList.remove("opacity-50");
+            draggedItem = null;
+          });
+        });
+
+        // 2. Drop Handlers
+        dropZones.forEach((zone) => {
+          zone.addEventListener("dragover", (e) => {
+            e.preventDefault(); // Memungkinkan drop
+            zone.classList.add("drag-over");
+          });
+
+          zone.addEventListener("dragleave", () => {
+            zone.classList.remove("drag-over");
+          });
+
+          zone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            zone.classList.remove("drag-over");
+
+            const dataId = e.dataTransfer.getData("text/plain");
+            const item = document.getElementById(dataId);
+
+            // Pastikan zona drop ini kosong sebelum menaruh item baru
+            if (zone.children.length === 0 || (zone.children.length === 1 && zone.children[0].tagName === "P")) {
+              // Hapus placeholder "Tarik kalimat ke sini" jika ada
+              const placeholder = zone.querySelector("p");
+              if (placeholder) {
+                placeholder.remove();
+              }
+              zone.appendChild(item);
+              item.classList.remove("p-3"); // Atur ulang padding setelah di drop
+              item.classList.add("p-2");
+              zone.classList.remove("correct", "incorrect");
+              // Sembunyikan pesan hasil DND setelah drop item
+              document.getElementById("message-box-dnd").classList.add("hidden");
+            } else {
+              // Jika zona sudah terisi
+              showMessage("error", "Zona ini sudah terisi. Silakan pindahkan item yang sudah ada terlebih dahulu.", 2000, "dnd");
+            }
+          });
+
+          // Tambahkan event listener untuk mengembalikan item yang di-drag kembali ke container jika di klik
+          zone.addEventListener("click", (e) => {
+            const droppedItem = e.target.closest(".drag-item");
+            if (droppedItem) {
+              returnItemToContainer(droppedItem);
+            }
+          });
+        });
+      }
+
+      // Fungsi untuk mengembalikan item ke kontainer asalnya
+      function returnItemToContainer(item) {
+        const container = document.getElementById("drag-container");
+        item.classList.remove("p-2");
+        item.classList.add("p-3");
+        item.parentElement.classList.remove("correct", "incorrect");
+
+        container.appendChild(item);
+
+        // Tambahkan kembali placeholder jika zona drop menjadi kosong
+        const dropZone = item.parentElement;
+        if (dropZone && dropZone.classList.contains("drop-zone") && dropZone.children.length === 0) {
+          const placeholder = document.createElement("p");
+          placeholder.className = "text-gray-500";
+          placeholder.textContent = "Tarik kalimat ke sini";
+          dropZone.appendChild(placeholder);
+        }
+        document.getElementById("message-box-dnd").classList.add("hidden");
+      }
+
+      // Fungsi Cek Jawaban D&D
+      function checkAnswers() {
+        let correctCount = 0;
+        let totalChecks = 0;
+        const dropZones = document.querySelectorAll("#content-analisis .drop-zone");
+
+        // Reset visual feedback
+        dropZones.forEach((zone) => {
+          zone.classList.remove("correct", "incorrect");
+        });
+
+        dropZones.forEach((zone) => {
+          const droppedItem = zone.querySelector(".drag-item");
+          const correctId = zone.getAttribute("data-correct-id");
+
+          if (droppedItem) {
+            totalChecks++;
+            if (droppedItem.id === `item-${correctId}`) {
+              zone.classList.add("correct");
+              correctCount++;
+            } else {
+              zone.classList.add("incorrect");
+            }
+          }
+        });
+
+        // Tampilkan Hasil
+        if (totalChecks === 3) {
+          if (correctCount === 3) {
+            showMessage("success", "🎉 Hebat! Semua struktur Narrative Text sudah kamu analisis dengan BENAR! Kamu menguasai materi ini!", 5000, "dnd");
+          } else {
+            showMessage("warning", `Jawabanmu belum sempurna. Kamu menjawab benar ${correctCount} dari 3. Coba perhatikan kembali urutan Orientation, Complication, dan Resolution.`, 5000, "dnd");
+          }
+        } else {
+          showMessage("info", `Mohon lengkapi semua ${3 - totalChecks} zona drop (Orientation, Complication, Resolution) sebelum menekan Cek Jawaban.`, 5000, "dnd");
+        }
+      }
+
+      // Fungsi Reset Game (DND atau Quiz)
+      function resetGame(type) {
+        if (type === "dnd") {
+          const dragContainer = document.getElementById("drag-container");
+          const dropZones = document.querySelectorAll("#content-analisis .drop-zone");
+          const dragItems = document.querySelectorAll(".drag-item");
+
+          // 1. Pindahkan semua item kembali ke drag container
+          dragItems.forEach((item) => {
+            item.classList.remove("p-2");
+            item.classList.add("p-3");
+            dragContainer.appendChild(item);
+          });
+
+          // 2. Bersihkan drop zones dan tambahkan placeholder
+          dropZones.forEach((zone) => {
+            zone.classList.remove("correct", "incorrect", "drag-over");
+            zone.innerHTML = '<p class="text-gray-500">Tarik kalimat ke sini</p>';
+          });
+
+          // 3. Sembunyikan pesan
+          showMessage("info", "Latihan Analisis direset. Silakan coba lagi!", 2000, "dnd");
+        } else if (type === "quiz") {
+          // Reset data jawaban
+          userAnswers = Array(quizQuestions.length).fill(null);
+
+          // Render ulang kuis untuk menghilangkan visual feedback
+          renderQuiz();
+
+          // Sembunyikan pesan
+          showMessage("info", "Kuis direset. Selamat mencoba kembali!", 2000, "quiz");
+        }
+      }
+
+      // Fungsi Menampilkan Pesan
+      function showMessage(type, message, duration, target) {
+        const messagebox = document.getElementById(`message-box-${target}`);
+        messagebox.textContent = message;
+        messagebox.classList.remove("hidden", "bg-green-100", "text-green-800", "bg-red-100", "text-red-800", "bg-yellow-100", "text-yellow-800", "bg-blue-100", "text-blue-800");
+
+        let bgColor, textColor;
+        if (type === "success") {
+          bgColor = "bg-green-100";
+          textColor = "text-green-800";
+        } else if (type === "error") {
+          bgColor = "bg-red-100";
+          textColor = "text-red-800";
+        } else if (type === "warning") {
+          bgColor = "bg-yellow-100";
+          textColor = "text-yellow-800";
+        } else {
+          // info
+          bgColor = "bg-blue-100";
+          textColor = "text-blue-800";
+        }
+
+        messagebox.classList.add(bgColor, textColor);
+        messagebox.classList.remove("hidden");
+
+        if (duration) {
+          setTimeout(() => {
+            messagebox.classList.add("hidden");
+          }, duration);
+        }
+      }
+
+      // Fungsi Navigasi Tab
+      function showTab(tabName) {
+        const contents = document.querySelectorAll(".tab-content");
+        const buttons = document.querySelectorAll(".tab-button");
+
+        contents.forEach((content) => {
+          content.classList.add("hidden");
+        });
+
+        buttons.forEach((button) => {
+          button.classList.remove("border-blue-600", "text-blue-600");
+          button.classList.add("border-transparent", "text-gray-500", "hover:text-blue-600", "hover:border-blue-300");
+        });
+
+        document.getElementById(`content-${tabName}`).classList.remove("hidden");
+        document.getElementById(`tab-${tabName}`).classList.remove("border-transparent", "text-gray-500", "hover:text-blue-600", "hover:border-blue-300");
+        document.getElementById(`tab-${tabName}`).classList.add("border-blue-600", "text-blue-600");
+
+        // Sembunyikan pesan hasil saat ganti tab
+        document.getElementById("message-box-dnd").classList.add("hidden");
+        document.getElementById("message-box-quiz").classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>
